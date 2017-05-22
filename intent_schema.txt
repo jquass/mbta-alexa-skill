@@ -1,0 +1,26 @@
+{
+  "intents": [
+    {
+      "slots": [
+        {
+          "name": "Stop",
+          "type": "AMAZON.CivicStructure"
+        },
+        {
+          "name": "Destination",
+          "type": "AMAZON.CivicStructure"
+        }
+      ],
+      "intent": "PredictionIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}

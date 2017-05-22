@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/jquass/mbta-alexa-skill#readme",
   "dependencies": {
-    "alexa-sdk": "^1.0.9"
+    "alexa-sdk": "^1.0.9",
+    "dotenv": "^4.0.0",
+    "request": "^2.81.0"
   }
 }
