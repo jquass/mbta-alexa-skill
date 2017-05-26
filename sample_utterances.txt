@@ -15,4 +15,3 @@ PredictionIntent when is the next {Destination} train arriving at {Stop}
 PredictionIntent when's the next {Destination} train due at {Stop}
 PredictionIntent when the next {Destination} train is due at {Stop}
 PredictionIntent how long until the next {Destination} train arrives at {Stop}
-PredictionIntent how long until the next {Destination} departs from {Stop}

@@ -1,10 +1,12 @@
 {
   "name": "mbta-alexa-skill",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "An Alexa skill for getting stop predictions from the MBTA",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm install",
+    "deploy": "npm run build && npm run zip",
+    "zip": "bestzip bundle.zip node_modules/ .env index.js"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,7 @@
   "homepage": "https://github.com/jquass/mbta-alexa-skill#readme",
   "dependencies": {
     "alexa-sdk": "^1.0.9",
+    "bestzip": "^1.1.4",
     "dotenv": "^4.0.0",
     "request": "^2.81.0"
   }
