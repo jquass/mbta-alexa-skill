@@ -85,17 +85,18 @@ var handlers = {
                         while (typeof(stop.mode[0].route[rx]) !== 'undefined') {
                             var route = stop.mode[0].route[rx];
                             console.log('route', route);
-                            var time;
-                            if (route.direction[0].trip[0].pre_away > 60) {
-                                var minutes = Math.round(route.direction[0].trip[0].pre_away / 60);
-                                var seconds = route.direction[0].trip[0].pre_away % 60;
-                                time = minutes + ' minutes and ' + seconds + ' seconds.';
+                            var timeDue;
+                            var pre_away = route.direction[0].trip[0].pre_away;
+                            if (pre_away >= 60) {
+                                var minutes = Math.round(pre_away / 60);
+                                var seconds = pre_away % 60;
+                                timeDue = minutes + ' minutes and ' + seconds + ' seconds.';
                             } else {
-                                time = route.direction[0].trip[0].pre_away + ' seconds.';
+                                timeDue = pre_away + ' seconds.';
                             }
 
                             var routeName = route.direction[0].direction_name + ' ' + route.route_name;
-                            response = response + 'The next ' + routeName + ' is due in ' + time + ' ';
+                            response = response + 'The next ' + routeName + ' is due in ' + timeDue + ' ';
                             rx++;
                         }
                     } else {
