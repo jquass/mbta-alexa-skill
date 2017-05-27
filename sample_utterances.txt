@@ -1,17 +1,17 @@
 PredictionIntent when the next train is arriving at {Stop}
 PredictionIntent when the next train arrives at {Stop}
+PredictionIntent when the next train is due at {Stop}
 PredictionIntent when does the next train arrive at {Stop}
 PredictionIntent when is the next train arriving at {Stop}
 PredictionIntent when is the next train due at {Stop}
 PredictionIntent when's the next train due at {Stop}
-PredictionIntent when the next train is due at {Stop}
 PredictionIntent how long until the next train arrives at {Stop}
 
-PredictionIntent when the next {Destination} train arrives at {Stop}
-PredictionIntent when the next {Destination} train is arriving at {Stop}
-PredictionIntent when does the next {Destination} train arrive at {Stop}
-PredictionIntent when is the next {Destination} train due at {Stop}
-PredictionIntent when is the next {Destination} train arriving at {Stop}
-PredictionIntent when's the next {Destination} train due at {Stop}
-PredictionIntent when the next {Destination} train is due at {Stop}
-PredictionIntent how long until the next {Destination} train arrives at {Stop}
+PredictionIntent when the next {Filter} train arrives at {Stop}
+PredictionIntent when the next {Filter} train is arriving at {Stop}
+PredictionIntent when the next {Filter} train is due at {Stop}
+PredictionIntent when does the next {Filter} train arrive at {Stop}
+PredictionIntent when is the next {Filter} train due at {Stop}
+PredictionIntent when is the next {Filter} train arriving at {Stop}
+PredictionIntent when's the next {Filter} train due at {Stop}
+PredictionIntent how long until the next {Filter} train arrives at {Stop}
