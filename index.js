@@ -32,13 +32,13 @@ var handlers = {
         }
         console.log('stop', stop);
 
-        var destination = intent.slots.Destination.value;
-        if (typeof(destination) === 'undefined') {
-            destination = null;
+        var filter = intent.slots.Filter.value;
+        if (typeof(filter) === 'undefined') {
+            filter = null;
         } else {
-            destination = destination.toLowerCase();
+            filter = filter.toLowerCase();
         }
-        console.log('destination', destination);
+        console.log('filter', filter);
 
         var url = mbtaApiHost + predictionPath;
         console.log('url', url);
@@ -48,7 +48,7 @@ var handlers = {
                 url: url,
                 form: {
                     stop: stop,
-                    destination: destination
+                    filter: filter
                 }
             },
             function (err, httpResponse, body) {

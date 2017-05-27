@@ -7,7 +7,7 @@
           "type": "AMAZON.CivicStructure"
         },
         {
-          "name": "Destination",
+          "name": "Filter",
           "type": "AMAZON.CivicStructure"
         }
       ],
