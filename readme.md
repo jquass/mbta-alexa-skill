@@ -1,5 +1,5 @@
 # MBTA Alexa Skill
-This skill is designed to be used in conjunction with the MBTA Alexa API project: [https://github.com/jquass/mbta-alexa-api]()
+This skill is designed to be used in conjunction with the MBTA Alexa API project: [jquass/mbta-alexa-api](https://github.com/jquass/mbta-alexa-api)
 
 That API needs to be setup before this will function.
 
