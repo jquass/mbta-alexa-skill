@@ -4,11 +4,12 @@ var Alexa = require('alexa-sdk');
 var request = require('request');
 
 var mbtaApiHost = process.env.MBTA_API_HOST;
-var predictionPath = 'api/v1/predictions';
+var predictionPath = 'api/v1/predictions/';
 
 exports.handler = function (event, context, callback) {
     var alexa = Alexa.handler(event, context);
     alexa.registerHandlers(handlers);
+    alexa.appId = process.env.APP_ID;
     alexa.execute();
 };
 
@@ -47,7 +48,8 @@ var handlers = {
                 url: url,
                 form: {
                     stop: stop,
-                    filter: filter
+                    filter: filter,
+                    type: 'train'
                 }
             },
             function (err, httpResponse, body) {
@@ -56,8 +58,8 @@ var handlers = {
                     restart(self);
                 }
 
-                if (httpResponse.statusCode !== 202) {
-                    console.error('Status code is not 202: ', body);
+                if (httpResponse.statusCode !== 201) {
+                    console.error('Status code is not 201: ', body);
                     restart(self);
                 }
 
@@ -99,7 +101,7 @@ var handlers = {
 
 var restart = function (self) {
     console.log('restarting, self: ', self);
-    console.log('intent: ', this.event.request.intent);
+    console.log('intent: ', self.event.request.intent);
     var rePrompt = "You can ask, when does the next west bound train arrive at boston college, or, you can say exit.";
     var speechOutput = "I didn't find that stop, please try again.";
     self.emit(':ask', speechOutput, rePrompt);
