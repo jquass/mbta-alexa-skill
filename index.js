@@ -1,7 +1,6 @@
 require('dotenv').config();
 
 var Alexa = require('alexa-sdk');
-var http = require('http');
 var request = require('request');
 
 var mbtaApiHost = process.env.MBTA_API_HOST;
@@ -30,18 +29,15 @@ var handlers = {
         } else {
             stop = stop.toLowerCase();
         }
-        console.log('stop', stop);
 
         var filter = intent.slots.Filter.value;
-        if (typeof(filter) === 'undefined') {
+        if (typeof(filter) === 'undefined' || filter.length === 0) {
             filter = null;
         } else {
             filter = filter.toLowerCase();
         }
-        console.log('filter', filter);
 
         var url = mbtaApiHost + predictionPath;
-        console.log('url', url);
 
         request.post(
             {
@@ -56,14 +52,9 @@ var handlers = {
                     console.error('error posting form: ', err);
                     restart(self);
                 }
-                var headers = httpResponse.headers;
-                var statusCode = httpResponse.statusCode;
 
-                console.log('headers: ', headers);
-                console.log('statusCode: ', statusCode);
-                console.log('body: ', body);
-
-                if (statusCode === 404) {
+                if (httpResponse.statusCode !== 202) {
+                    console.error('Status code is not 202: ', body);
                     restart(self);
                 }
 
@@ -74,58 +65,15 @@ var handlers = {
                     restart(self);
                 }
 
-                var px = 0;
-                var response = '';
-                var emptyResponse = '';
-                while (typeof(predictions[px]) !== 'undefined') {
-                    var stop = predictions[px];
-                    console.log('stop', stop);
-                    if (typeof(stop.mode) !== 'undefined') {
-                        var rx = 0;
-                        while (typeof(stop.mode[0].route[rx]) !== 'undefined') {
-                            var route = stop.mode[0].route[rx];
-                            console.log('route', route);
-                            var timeDue;
-                            var pre_away = route.direction[0].trip[0].pre_away;
-                            if (pre_away >= 60) {
-                                var minutes = Math.round(pre_away / 60);
-                                var seconds = pre_away % 60;
-                                timeDue = minutes + ' minutes and ' + seconds + ' seconds.';
-                            } else {
-                                timeDue = pre_away + ' seconds.';
-                            }
-
-                            var routeName = route.direction[0].direction_name + ' ' + route.route_name;
-                            response = response + 'The next ' + routeName + ' is due in ' + timeDue + ' ';
-                            rx++;
-                        }
-                    } else {
-                        if (emptyResponse.length === 0) {
-                            emptyResponse = emptyResponse + ' ' + predictions[px].stop_name + ' ';
-                        } else {
-                            emptyResponse = emptyResponse + ' or ' + predictions[px].stop_name + ' ';
-                        }
-                    }
-
-                    px++;
-                }
-
-                if (response.length === 0) {
-                    self.emit(':tell', 'There are no trains due at' + emptyResponse);
-                } else {
-                    self.emit(':tell', response);
-                }
-
-
+                self.emit(':tell', parsePredictions(predictions));
             }
         );
-
     },
 
     'AMAZON.HelpIntent': function () {
         console.log('AMAZON.HelpIntent');
         var rePrompt = "What can I help you with?";
-        var speechOutput = "You can ask, when does the next west bound train arrive at boston college, or, you can say cancel.";
+        var speechOutput = "You can ask, when does the next west bound train arrive at boston college, or, you can say exit.";
         this.emit(':ask', speechOutput, rePrompt);
     },
 
@@ -140,12 +88,60 @@ var handlers = {
     },
 
     'Unhandled': function () {
+        console.log('Unhandled');
         this.emit('AMAZON.HelpIntent');
     }
 };
 
 var restart = function (self) {
+    console.log('restarting, self: ', self);
+    console.log('intent: ', this.event.request.intent);
     var rePrompt = "You can ask, when does the next west bound train arrive at boston college, or, you can say exit.";
     var speechOutput = "I didn't find that stop, please try again.";
     self.emit(':ask', speechOutput, rePrompt);
 };
+
+
+function parsePredictions(predictions) {
+    var px = 0;
+    var response = '';
+    var emptyResponse = '';
+    while (typeof(predictions[px]) !== 'undefined') {
+        var stop = predictions[px];
+        console.log('stop', stop);
+        if (typeof(stop.mode) !== 'undefined') {
+            var rx = 0;
+            while (typeof(stop.mode[0].route[rx]) !== 'undefined') {
+                var route = stop.mode[0].route[rx];
+                console.log('route', route);
+                var timeDue;
+                var pre_away = route.direction[0].trip[0].pre_away;
+                if (pre_away >= 60) {
+                    var minutes = Math.round(pre_away / 60);
+                    var seconds = pre_away % 60;
+                    timeDue = minutes + ' minutes and ' + seconds + ' seconds.';
+                } else {
+                    timeDue = pre_away + ' seconds.';
+                }
+
+                var routeName = route.direction[0].direction_name + ' ' + route.route_name;
+                response = response + 'The next ' + routeName + ' is due in ' + timeDue + ' ';
+                rx++;
+            }
+        } else {
+            if (emptyResponse.length === 0) {
+                emptyResponse = emptyResponse + ' ' + predictions[px].stop_name + ' ';
+            } else {
+                emptyResponse = emptyResponse + ' or ' + predictions[px].stop_name + ' ';
+            }
+        }
+
+        px++;
+    }
+
+    if (response.length === 0) {
+        response = 'There are no trains due at' + emptyResponse;
+    }
+
+    return response;
+}
