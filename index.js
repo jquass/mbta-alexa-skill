@@ -4,7 +4,7 @@ var Alexa = require('alexa-sdk');
 var request = require('request');
 
 var mbtaApiHost = process.env.MBTA_API_HOST;
-var predictionPath = 'api/v1/predictions/';
+var predictionPath = 'api/v1/predictions';
 
 exports.handler = function (event, context, callback) {
     var alexa = Alexa.handler(event, context);
@@ -15,7 +15,8 @@ exports.handler = function (event, context, callback) {
 
 var handlers = {
     'LaunchRequest': function () {
-        this.emit('PredictionIntent');
+        console.log('LaunchRequest');
+        this.emitWithState('PredictionIntent');
     },
 
     'PredictionIntent': function () {
@@ -23,43 +24,34 @@ var handlers = {
 
         var self = this;
         var intent = this.event.request.intent;
+        console.log('intent: ', intent);
 
-        var stop = intent.slots.Stop.value;
-        if (typeof(stop) === 'undefined' || stop.length === 0) {
-            restart(self);
-        } else {
-            stop = stop.toLowerCase();
-        }
-        console.log('stop', stop);
+        var stop = getStop(intent, self);
+        console.log('stop: ', stop);
 
-        var filter = intent.slots.Filter.value;
-        if (typeof(filter) === 'undefined' || filter.length === 0) {
-            filter = null;
-        } else {
-            filter = filter.toLowerCase();
-        }
-        console.log('filter', filter);
+        var filter = getFilter(intent);
+        console.log('filter: ', filter);
 
         var url = mbtaApiHost + predictionPath;
-        console.log('url', url);
-
+        console.log('url: ', url);
         request.post(
             {
-                url: url,
-                form: {
-                    stop: stop,
-                    filter: filter,
-                    type: 'train'
+                'url': url,
+                'form': {
+                    'stop': stop,
+                    'filter': filter,
+                    'type': 'train'
                 }
             },
             function (err, httpResponse, body) {
                 if (err) {
-                    console.error('error posting form: ', err);
+                    console.error('error posting endpoint: ', err);
                     restart(self);
                 }
 
                 if (httpResponse.statusCode !== 201) {
-                    console.error('Status code is not 201: ', body);
+                    console.error('Status code: ', httpResponse.statusCode);
+                    console.error('Body: ', body);
                     restart(self);
                 }
 
@@ -74,6 +66,7 @@ var handlers = {
                 self.emit(':tell', prediction);
             }
         );
+
     },
 
     'AMAZON.HelpIntent': function () {
@@ -95,18 +88,37 @@ var handlers = {
 
     'Unhandled': function () {
         console.log('Unhandled');
-        this.emit('AMAZON.HelpIntent');
+        this.emitWithState('AMAZON.HelpIntent');
     }
 };
 
 var restart = function (self) {
-    console.log('restarting, self: ', self);
-    console.log('intent: ', self.event.request.intent);
+    console.log('restart');
     var rePrompt = "You can ask, when does the next west bound train arrive at boston college, or, you can say exit.";
     var speechOutput = "I didn't find that stop, please try again.";
     self.emit(':ask', speechOutput, rePrompt);
 };
 
+
+function getStop(intent, self) {
+    var stop  =  intent.slots.Stop.value;
+    if (typeof(stop) === 'undefined' || stop.length === 0) {
+        restart(self);
+    } else {
+        stop = stop.toLowerCase();
+    }
+    return stop;
+}
+
+function getFilter(intent) {
+    var filter = intent.slots.Filter.value;
+    if (typeof(filter) === 'undefined' || filter.length === 0) {
+        filter = null;
+    } else {
+        filter = filter.toLowerCase();
+    }
+    return filter;
+}
 
 function parsePredictions(predictions) {
     var px = 0;
@@ -114,12 +126,10 @@ function parsePredictions(predictions) {
     var emptyResponse = '';
     while (typeof(predictions[px]) !== 'undefined') {
         var stop = predictions[px];
-        console.log('stop', stop);
         if (typeof(stop.mode) !== 'undefined') {
             var rx = 0;
             while (typeof(stop.mode[0].route[rx]) !== 'undefined') {
                 var route = stop.mode[0].route[rx];
-                console.log('route', route);
                 var timeDue;
                 var pre_away = route.direction[0].trip[0].pre_away;
                 if (pre_away >= 60) {
