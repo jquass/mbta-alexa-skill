@@ -29,6 +29,7 @@ var handlers = {
         } else {
             stop = stop.toLowerCase();
         }
+        console.log('stop', stop);
 
         var filter = intent.slots.Filter.value;
         if (typeof(filter) === 'undefined' || filter.length === 0) {
@@ -36,8 +37,10 @@ var handlers = {
         } else {
             filter = filter.toLowerCase();
         }
+        console.log('filter', filter);
 
         var url = mbtaApiHost + predictionPath;
+        console.log('url', url);
 
         request.post(
             {
@@ -65,7 +68,8 @@ var handlers = {
                     restart(self);
                 }
 
-                self.emit(':tell', parsePredictions(predictions));
+                var prediction = parsePredictions(predictions);
+                self.emit(':tell', prediction);
             }
         );
     },
